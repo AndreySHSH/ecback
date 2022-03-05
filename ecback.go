@@ -15,26 +15,26 @@ import (
 )
 
 type DataError struct {
-	ErrorText     string `json:"error_text"`
-	StartingPoint string `json:"starting_point"`
-	Trace         string `json:"trace"`
+	ErrorText        string `json:"error_text"`
+	StartingPoint    string `json:"starting_point"`
+	Trace            string `json:"trace"`
+	ApplicationTitle string `json:"application_title"`
 }
 
 type ECBack struct {
 	sync.Mutex
-	SCS           *spew.ConfigState
-	DataError     DataError
-	JsonString    string
-	StopExecution bool
-	CallBackUrl   string
-	Trace         string
-	ShowLog       bool
-	queue         chan *ECBack
+	SCS              *spew.ConfigState
+	ApplicationTitle string
+	DataError        DataError
+	JsonString       string
+	StopExecution    bool
+	CallBackUrl      string
+	Trace            string
+	ShowLog          bool
 }
 
 func InitErrCallBack(e *ECBack) *ECBack {
 	e.SCS = &spew.ConfigState{Indent: "  ", SortKeys: true}
-	e.queue = make(chan *ECBack, 3000)
 
 	return e
 }
@@ -59,6 +59,7 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 	e.DataError.ErrorText = err.Error()
 	e.Trace = e.SCS.Sdump(err)
 	e.DataError.Trace = strings.Replace(e.Trace, "\n", "", -1)
+	e.DataError.ApplicationTitle = e.ApplicationTitle
 
 	marshal, err := json.Marshal(e.DataError)
 	if err != nil {
