@@ -101,6 +101,7 @@ func (e *ECBack) worker() {
 		select {
 		case ed := <-e.queue:
 			ed.responseServer()
+			fmt.Println(e.DataError, e.CallBackUrl)
 		default:
 			time.Sleep(1 * time.Second)
 		}
