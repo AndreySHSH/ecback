@@ -23,7 +23,7 @@ type ECBack struct {
 	StopExecution bool
 	CallBackUrl   string
 	Trace         string
-	Debug         bool
+	ShowLog       bool
 }
 
 func InitErrCallBack(e ECBack) *ECBack {
@@ -49,7 +49,7 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 
 	e.JsonString = string(marshal)
 
-	if e.Debug {
+	if e.ShowLog {
 		fmt.Println(e.JsonString)
 	}
 
