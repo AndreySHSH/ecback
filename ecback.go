@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type DataError struct {
@@ -101,7 +102,7 @@ func (e *ECBack) worker() {
 		case ed := <-e.queue:
 			ed.responseServer()
 		default:
-			print(1)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
