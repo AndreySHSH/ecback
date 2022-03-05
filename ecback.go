@@ -1,11 +1,12 @@
 package ecback
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"log"
 	"net/http"
-	"net/url"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -39,21 +40,13 @@ func InitErrCallBack(e *ECBack) *ECBack {
 }
 
 func (e *ECBack) responseServer() {
+	r := bytes.NewReader([]byte(e.JsonString))
 
-	data := url.Values{
-		"trace":          {e.Trace},
-		"starting_point": {e.DataError.StartingPoint},
-		"error_text":     {e.DataError.ErrorText},
-	}
-
-	resp, err := http.PostForm(e.CallBackUrl, data)
+	_, err := http.Post(e.CallBackUrl, "application/json", r)
 
 	if err != nil {
-		e.queue <- e
-	}
-
-	if resp.StatusCode != 200 {
-		e.queue <- e
+		log.Println(err)
+		return
 	}
 }
 
