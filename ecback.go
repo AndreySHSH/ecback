@@ -34,7 +34,7 @@ func InitErrCallBack(e ECBack) *ECBack {
 	e.SCS = &spew.ConfigState{Indent: "  ", SortKeys: true}
 	e.queue = make(chan *ECBack, 30)
 
-	e.worker()
+	go e.worker()
 
 	return &e
 }
