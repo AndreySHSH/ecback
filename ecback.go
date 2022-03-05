@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 )
 
 type DataError struct {
@@ -34,9 +33,7 @@ type ECBack struct {
 
 func InitErrCallBack(e *ECBack) *ECBack {
 	e.SCS = &spew.ConfigState{Indent: "  ", SortKeys: true}
-	e.queue = make(chan *ECBack, 30)
-
-	go e.worker()
+	e.queue = make(chan *ECBack, 3000)
 
 	return e
 }
@@ -102,16 +99,4 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 func (e *ECBack) getFileAndLine() {
 	_, file, line, _ := runtime.Caller(2)
 	e.DataError.StartingPoint = fmt.Sprintf("%s:%d", filepath.Base(file), line-1)
-}
-
-func (e *ECBack) worker() {
-	for {
-		select {
-		case ed := <-e.queue:
-			ed.responseServer()
-			fmt.Println(e.DataError, e.CallBackUrl)
-		default:
-			time.Sleep(1 * time.Second)
-		}
-	}
 }
