@@ -12,7 +12,7 @@ func main() {
 	ecb := ecback.InitErrCallBack(ecback.ECBack{
 		CallBackUrl: "https://example.com/event",
 		ShowLog:     true,
-		ApplocationTitle: "test-v11.1",
+		ApplocationTitle: "test-v1.1.1",
 	})
 
 	_, err := os.Open("asd")
