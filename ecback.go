@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"net/http"
+	"net/url"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -24,12 +26,35 @@ type ECBack struct {
 	CallBackUrl   string
 	Trace         string
 	ShowLog       bool
+	queue         chan *ECBack
 }
 
 func InitErrCallBack(e ECBack) *ECBack {
 	e.SCS = &spew.ConfigState{Indent: "  ", SortKeys: true}
+	e.queue = make(chan *ECBack, 30)
+
+	e.worker()
 
 	return &e
+}
+
+func (e *ECBack) responseServer() {
+
+	data := url.Values{
+		"trace":          {e.Trace},
+		"starting_point": {e.DataError.StartingPoint},
+		"error_text":     {e.DataError.ErrorText},
+	}
+
+	resp, err := http.PostForm(e.CallBackUrl, data)
+
+	if err != nil {
+		e.queue <- e
+	}
+
+	if resp.StatusCode != 200 {
+		e.queue <- e
+	}
 }
 
 func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
@@ -68,4 +93,15 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 func (e *ECBack) getFileAndLine() {
 	_, file, line, _ := runtime.Caller(2)
 	e.DataError.StartingPoint = fmt.Sprintf("%s:%d", filepath.Base(file), line-1)
+}
+
+func (e *ECBack) worker() {
+	for {
+		select {
+		case ed := <-e.queue:
+			ed.responseServer()
+		default:
+			print(1)
+		}
+	}
 }
