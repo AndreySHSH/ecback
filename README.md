@@ -4,14 +4,14 @@
 package main
 
 import (
-	"github.com/AndreySHSH/ecback/ecback"
+	"github.com/AndreySHSH/ecback"
 	"os"
 )
 
 func main() {
 	ecb := ecback.InitErrCallBack(ecback.ECBack{
 		CallBackUrl: "https://example.com/event",
-		Debug:       true,
+		ShowLog:     true,
 	})
 
 	_, err := os.Open("asd")
