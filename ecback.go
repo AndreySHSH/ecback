@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -20,6 +21,7 @@ type DataError struct {
 }
 
 type ECBack struct {
+	sync.Mutex
 	SCS           *spew.ConfigState
 	DataError     DataError
 	JsonString    string
@@ -30,13 +32,13 @@ type ECBack struct {
 	queue         chan *ECBack
 }
 
-func InitErrCallBack(e ECBack) *ECBack {
+func InitErrCallBack(e *ECBack) *ECBack {
 	e.SCS = &spew.ConfigState{Indent: "  ", SortKeys: true}
 	e.queue = make(chan *ECBack, 30)
 
 	go e.worker()
 
-	return &e
+	return e
 }
 
 func (e *ECBack) responseServer() {
@@ -64,6 +66,7 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 	}
 
 	e.getFileAndLine()
+	e.Mutex.Lock()
 	e.DataError.ErrorText = err.Error()
 	e.Trace = e.SCS.Sdump(err)
 	e.DataError.Trace = strings.Replace(e.Trace, "\n", "", -1)
@@ -91,6 +94,7 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 			}
 		}
 	}
+	e.Mutex.Unlock()
 
 	return nil
 }
