@@ -41,9 +41,7 @@ func InitErrCallBack(e *ECBack) *ECBack {
 
 func (e *ECBack) responseServer() {
 	r := bytes.NewReader([]byte(e.JsonString))
-	req, err := http.NewRequest("POST", e.CallBackUrl, r)
-	req.Header.Set("X-Custom-Header", "myvalue")
-	req.Header.Set("Content-Type", "application/json")
+	_, err := http.Post(e.CallBackUrl, "application/json", r)
 
 	if err != nil {
 		log.Println(err)
