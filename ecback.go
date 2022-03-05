@@ -24,7 +24,7 @@ type ECBack struct {
 	DataError     DataError
 	JsonString    string
 	StopExecution bool
-	CallBackUrl   *string
+	CallBackUrl   string
 	Trace         string
 	ShowLog       bool
 	queue         chan *ECBack
@@ -47,7 +47,7 @@ func (e *ECBack) responseServer() {
 		"error_text":     {e.DataError.ErrorText},
 	}
 
-	resp, err := http.PostForm(*e.CallBackUrl, data)
+	resp, err := http.PostForm(e.CallBackUrl, data)
 
 	if err != nil {
 		e.queue <- e
@@ -79,7 +79,7 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 		fmt.Println(e.JsonString)
 	}
 
-	if e.CallBackUrl != nil {
+	if e.CallBackUrl != "" {
 		e.responseServer()
 	}
 
