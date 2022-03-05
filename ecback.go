@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -41,13 +42,20 @@ func InitErrCallBack(e *ECBack) *ECBack {
 
 func (e *ECBack) responseServer() {
 	r := bytes.NewReader([]byte(e.JsonString))
-
-	_, err := http.Post(e.CallBackUrl, "application/json", r)
+	resp, err := http.Post(e.CallBackUrl, "application/json", r)
 
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	defer resp.Body.Close()
+	//Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	sb := string(body)
+	log.Printf(sb)
 }
 
 func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
