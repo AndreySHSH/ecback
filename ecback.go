@@ -39,9 +39,9 @@ func InitErrCallBack(e *ECBack) *ECBack {
 	return e
 }
 
-func (e *ECBack) responseServer() {
-	r := bytes.NewReader([]byte(e.JsonString))
-	_, err := http.Post(e.CallBackUrl, "application/json", r)
+func responseServer(jsonString, url string) {
+	r := bytes.NewReader([]byte(jsonString))
+	_, err := http.Post(url, "application/json", r)
 
 	if err != nil {
 		log.Println(err)
@@ -73,7 +73,7 @@ func (e *ECBack) E(err error, callback func(*ECBack) *ECBack) *error {
 	}
 
 	if e.CallBackUrl != "" {
-		e.responseServer()
+		go responseServer(e.JsonString, e.CallBackUrl)
 	}
 
 	if callback != nil {
